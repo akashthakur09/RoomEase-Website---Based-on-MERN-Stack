@@ -1,17 +1,16 @@
 const jwt = require('jsonwebtoken');
-
-const jwtSecret = '123456789'; 
+const key = process.env.ACCESS_TOKEN_SECRET; // jwt secret key 123456789@akash
 
 // Generate JWT token
 const generateToken = (userId) => {
-  const token = jwt.sign({ userId }, jwtSecret, { expiresIn: '1h' });
+  const token = jwt.sign({ userId }, key, { expiresIn: '1h' });
   return token;
 };
 
 // Verify JWT token
 const verifyToken = (token) => {
   try {
-    const decodedToken = jwt.verify(token, jwtSecret);
+    const decodedToken = jwt.verify(token, key);
     return decodedToken;
   } catch (error) {
     return null;

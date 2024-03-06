@@ -97,7 +97,7 @@ const ProfilePage = () => {
                 <p>Aadhar Number: 1234-5678-9012</p>
               </div>
               <div className='second-btn'>
-                <button className='profile-btn'>Edit</button>
+                <button className='profile-btn' onClick={updateDetails}>Edit</button>
               </div>
             </div>
           );

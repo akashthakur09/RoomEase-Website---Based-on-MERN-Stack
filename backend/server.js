@@ -6,7 +6,7 @@ const connectDB = require('./config/db');
 
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT;// 5000 port
 
 
 app.use(bodyParser.json());
