@@ -28,7 +28,7 @@ function Navbar({ toggleLoginWindow }) {
 
   return (
     <nav className={`nav${fixedNavbar ? 'nav-fixed' : ''}`}>
-      <Link to="/" className="nav-logo">My App</Link>
+      <Link to="#" className="nav-logo">RoomEase</Link>
       <ul className="nav-list" >
         <li><Link to="/updateRoom" className={location.pathname === '/updateRoom' ? 'active' : ''}>Update Rooms Details</Link></li>
         <li><Link to="/roomRequests" className={location.pathname === '/roomRequests' ? 'active' : ''}>Room Requests</Link></li>

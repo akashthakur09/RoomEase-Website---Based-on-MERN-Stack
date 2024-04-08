@@ -1,41 +1,27 @@
-import React, { useState,useEffect } from 'react';
-import '../../css/llp.css'; 
+
+import React, { useState, useEffect } from 'react';
+import '../../css/llp.css';
 import Navbar from '../../Pages/llnavbar';
 import profileImage from '../../data/profile1.jpg'
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const ProfilePage = () => {
+  const [selectedOption, setSelectedOption] = useState('profile');
   const [userData, setUserData] = useState(null);
-  const [selectedOption, setSelectedOption] = useState('PersonalDetails'); // Default option: PersonalDetails
-  const [update, setUpdate]=useState([]);
-
-  const navigate=useNavigate();
-  
-  const updateDetails = async () => {
-    const userId = localStorage.getItem('userId');
-    try {
-      const response = await fetch(`http://localhost:5000/api/landlord/profile/${userId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
-      setUpdate(data);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
-
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const navigate = useNavigate(); 
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userId = localStorage.getItem('userId');
       try {
-        const response = await fetch(`http://localhost:5000/api/landlord/profile/${userId}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setUserData(data); // Assuming the API response is an object containing user data
+        const response = await axios.get(`http://localhost:5000/api/landlord/profile/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        setUserData(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -44,89 +30,104 @@ const ProfilePage = () => {
     fetchUserData();
   }, []);
 
-  useEffect(() => {
-    updateDetails();
-  }, []);
+  const handleFileChange = (event) => {
+    setProfilePhoto(event.target.files[0]);
+  };
 
-
+  
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    if (!profilePhoto) {
+      alert('Please select a profile photo.');
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append('profilePhoto', profilePhoto);
+  
+      const response = await axios.post(`http://localhost:5000/api/upload/landlord/profile/photo/${userId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      alert('Profile photo uploaded successfully');
+      console.log('Profile photo uploaded successfully:', response.data);
+  
+      // Update the user's profile photo in the frontend
+      setUserData(prevUserData => ({
+        ...prevUserData,
+        profilePhoto: response.data.filePath // Assuming the response contains the file path
+      }));
+    } catch (error) {
+      console.error('Error uploading profile photo:', error);
+      // Handle error appropriately (e.g., display error message to the user)
+    }
+  };
+  
 
   const renderContent = () => {
-    
-      switch (selectedOption) {
-        case 'PersonalDetails':
-          return (
-            <div className='renderbox'>
-              <div className='second-heading'><h1>Your Personal Details</h1></div>
-              <div className='second-content'>
-                {userData ? (
-                  <>
-                    <p className='label'>Name:</p>
-                    <p className='InputField'>{userData.name}</p>
+    switch (selectedOption) {
+      case 'PersonalDetails':
+        return (
+          <div className='renderbox'>
+            <div className='second-heading'><h1>Your Personal Details</h1></div>
+            <div className='second-content'>
+              <p className='label'>Name:</p>
+              <p className='InputField'>{userData?.name}</p>
 
-                    <p className='label'>Email Id: </p>
-                    <p className='InputField'>{userData.email}</p>
+              <p className='label'>Email Id:</p>
+              <p className='InputField'>{userData?.email}</p>
 
-                    <p className='label'>Contact Details:</p>
-                    <p className='InputField'> {userData.contactNumber}</p>
-                    
-                    {/* Add other user details here */}
-                  </>
-                ) : (
-                  <div>
-                    <h1>Dummy User Data</h1>
-                    <p>Name: John Doe</p>
-                    <p>Email: johndoe@example.com</p>
-                    <p>Contact: 123-456-7890</p>
-                    <p>Aadhar Number: 1234-5678-9012</p>
-                </div>
-                )}
-              </div>
-              <div className='second-btn'>
-                <button className='profile-btn' onClick={updateDetails}>Edit</button>
-              </div>
+              <p className='label'>Contact Details:</p>
+              <p className='InputField'> {userData?.contactNumber}</p>
+
+              
             </div>
-          );
-        default:
-          return (
-            <div className='renderbox'>
-              <div className='second-heading'><h1>Your Personal Details</h1></div>
-              <div className='second-content'>
-                <p>Name: John Doe</p>
-                <p>Email: johndoe@example.com</p>
-                <p>Contact: 123-456-7890</p>
-                <p>Aadhar Number: 1234-5678-9012</p>
-              </div>
-              <div className='second-btn'>
-                <button className='profile-btn' onClick={updateDetails}>Edit</button>
-              </div>
+           
+          </div>
+        );
+      
+      default:
+        return (
+          <div className='renderbox' style={{ overflow: "auto" }}>
+            <div className='second-heading'><h1>Your Personal Details</h1></div>
+            <div className='second-content' >
+              <p className='label'>Name:</p>
+              <p className='InputField'>{userData?.name}</p>
+
+              <p className='label'>Email Id:</p>
+              <p className='InputField'>{userData?.email}</p>
+
+              <p className='label'>Contact Details:</p>
+              <p className='InputField'> {userData?.contactNumber}</p>
+
+              
             </div>
-          );
+          </div>
+        );
     }
   };
 
-
-  const deleteAccount= async()=>{
-    const userId = localStorage.getItem("userId");
-    console.log("delete");
-
+  const deleteAccount = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/landlord/profile/${userId}`, {
-        method: 'DELETE',
+      const response = await axios.delete(`http://localhost:5000/api/landlord/profile/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to delete user');
       }
-      
+
       window.localStorage.clear();
-      
-      // Optionally, you can handle the success response here
       console.log('User deleted successfully');
       navigate("/");
     } catch (error) {
       console.error('Error deleting user:', error);
     }
-  }
+  };
 
   return (
     <>
@@ -135,18 +136,27 @@ const ProfilePage = () => {
         <div className="firstsec">
           <ul>
             <li onClick={() => setSelectedOption('PersonalDetails')}>Personal Details</li>
-            {/* <li onClick={() => setSelectedOption('RoomsDetails')}>Rooms Details</li>
-            <li onClick={() => setSelectedOption('RoomRequests')}>Room Requests</li>
-            <li onClick={() => setSelectedOption('Payments')}>Due Payments</li> */}
+            {/* <li onClick={() => setSelectedOption('RoomDetails')}>Room Details</li> */}
             <button onClick={deleteAccount} className='profile-btn'>Delete Account</button>
-            
           </ul>
         </div>
         <div className="second">
           {renderContent()}
+          <div className='second-btn'>
+            
+          </div>
         </div>
-        <div className="profile-section">
-          <img src={profileImage} alt="Profile" className="profile-photo" />
+        <div className="profile-section" style={{border:"2px solid red"}}>
+         
+          {userData && userData.profilePhoto && (
+            
+            <img src={userData.profilePhoto} alt="Profile" className="profile-photo"/>
+            
+          )}
+          <form onSubmit={handleFormSubmit}>
+              <input type="file" accept="image/*" onChange={handleFileChange} style={{backgroundColor:"#f20674"}}/>
+              <button type="submit" className='profile-btn'>Upload Profile Photo</button>
+            </form>
           <div className="ratings">
             <h3>Your Ratings</h3>
             <p>5 stars</p>
@@ -158,4 +168,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-

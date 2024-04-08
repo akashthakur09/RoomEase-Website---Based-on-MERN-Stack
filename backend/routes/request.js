@@ -4,7 +4,7 @@ const Request = require('../models/requestModel');
 const validateToken = require('../middleware/validateTokenHandler');
 
 // Create a new request
-router.post('/create', async (req, res) => {
+router.post('/create',validateToken, async (req, res) => {
   try {
     const newRequest = new Request(req.body);
     const savedRequest = await newRequest.save();
@@ -16,7 +16,7 @@ router.post('/create', async (req, res) => {
 });
 
 //get all requests
-router.get('/all/:id', async (req, res) => {
+router.get('/all/:id',validateToken, async (req, res) => {
   try {
     const requests = await Request.find();
     res.status(200).json(requests);
@@ -25,7 +25,7 @@ router.get('/all/:id', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-router.get('/all', async (req, res) => {
+router.get('/all',validateToken, async (req, res) => {
   try {
     const requests = await Request.find();
     res.status(200).json(requests);
@@ -36,7 +36,7 @@ router.get('/all', async (req, res) => {
 });
 
 // Get request by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id',validateToken, async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
     if (!request) {
@@ -50,7 +50,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update request by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id',validateToken, async (req, res) => {
   try {
     const updatedRequest = await Request.findByIdAndUpdate(
       req.params.id,
@@ -68,7 +68,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete request by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',validateToken, async (req, res) => {
   try {
     const deletedRequest = await Request.findByIdAndDelete(req.params.id);
     if (!deletedRequest) {

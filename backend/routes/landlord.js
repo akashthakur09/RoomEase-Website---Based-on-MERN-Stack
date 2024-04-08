@@ -1,10 +1,11 @@
 const express = require('express');
 const Landlord = require('../models/landlordModel');
+const User=require('../models/userModel');
 const validateToken = require("../middleware/validateTokenHandler"); 
 const router = express.Router();
 
 // Get landlord profile by ID
-router.get('/profile/:id', async (req, res) => {
+router.get('/profile/:id',validateToken, async (req, res) => {
   try {
     const landlord = await Landlord.findById(req.params.id);
     console.log(landlord);
@@ -21,7 +22,7 @@ router.get('/profile/:id', async (req, res) => {
 });
 
 // Update landlord profile by ID
-router.put('/profile/:id', async (req, res) => {
+router.put('/profile/:id',validateToken, async (req, res) => {
   try {
     const updatedLandlord = await Landlord.findByIdAndUpdate(
       req.params.id,
@@ -39,12 +40,23 @@ router.put('/profile/:id', async (req, res) => {
 });
 
 // Delete landlord profile by ID
-router.delete('/profile/:id', async (req, res) => {
+router.delete('/profile/:id',validateToken, async (req, res) => {
   try {
     const deletedLandlord = await Landlord.findByIdAndDelete(req.params.id);
     if (!deletedLandlord) {
+      // const deleteUser = await User.findByIdAndDelete(r);
       return res.status(404).json({ message: 'Landlord not found' });
     }
+
+    // const deleteUser = await User.findByIdAndDelete(req.params.id);
+
+    // if (!deleteUser) {
+    //   return res.status(404).json({ message: 'Landlord not found' });
+    // }
+
+
+
+
     res.status(200).json({ message: 'Landlord deleted successfully' });
   } catch (error) {
     console.error(error);

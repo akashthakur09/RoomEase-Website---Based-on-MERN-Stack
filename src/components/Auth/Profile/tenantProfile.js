@@ -1,65 +1,84 @@
-import React, { useState } from 'react';
-import '../../css/tp.css'; 
-import '../../css/llp.css'; 
-import Navbar from '../../Pages/navbar';
-import profileImage from '../../data/profile1.jpg'
-import { useEffect } from 'react';
-import { useNavigate} from 'react-router-dom';
 
+import React, { useState, useEffect } from 'react';
+import Navbar from '../../Pages/navbar';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const ProfilePage = () => {
-  const [selectedOption, setSelectedOption] = useState('profile'); // Default option: profile
-  
-  let navigate = useNavigate()
-  const userId=localStorage.getItem("userId");
-
+  const [selectedOption, setSelectedOption] = useState('profile');
   const [userData, setUserData] = useState(null);
-  const [roomDetail, setRoomDetail] = useState([]);
+  const [tenantRoom, setTenantRoom] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const navigate = useNavigate(); // Import useNavigate from 'react-router-dom'
+  const userId = localStorage.getItem("userId");
 
-
-
-
-  
   useEffect(() => {
     const fetchUserData = async () => {
-      const userId = localStorage.getItem('userId');
       try {
-        const response = await fetch(`http://localhost:5000/api/tenant/profile/${userId}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setUserData(data); // Assuming the API response is an object containing user data
+        const response = await axios.get(`http://localhost:5000/api/tenant/profile/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        setUserData(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
+    const fetchRoomData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/tenant/profile/room/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        setTenantRoom(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchRoomData();
 
     fetchUserData();
   }, []);
 
-  useEffect(() => {
-    const fetchRoomDetails = async () => {
-      const userId = localStorage.getItem('userId');
-      try {
-        const response = await fetch(`http://localhost:5000/api/tenant/profile/${userId}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setUserData(data); // Assuming the API response is an object containing user data
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchRoomDetails();
-  }, []);
-
+  const handleFileChange = (event) => {
+    setProfilePhoto(event.target.files[0]);
+  };
 
   
-  // console.log("user")
-  // console.log(user);
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    if (!profilePhoto) {
+      alert('Please select a profile photo.');
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append('profilePhoto', profilePhoto);
+  
+      const response = await axios.post(`http://localhost:5000/api/upload/tenant/profile/photo/${userId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      alert('Profile photo uploaded successfully');
+      console.log('Profile photo uploaded successfully:', response.data);
+  
+      // Update the user's profile photo in the frontend
+      setUserData(prevUserData => ({
+        ...prevUserData,
+        profilePhoto: response.data.filePath // Assuming the response contains the file path
+      }));
+    } catch (error) {
+      console.error('Error uploading profile photo:', error);
+      // Handle error appropriately (e.g., display error message to the user)
+    }
+  };
+  
+
   const renderContent = () => {
     switch (selectedOption) {
       case 'PersonalDetails':
@@ -67,35 +86,19 @@ const ProfilePage = () => {
           <div className='renderbox'>
             <div className='second-heading'><h1>Your Personal Details</h1></div>
             <div className='second-content'>
-            {userData ? (
-                  <>
-                    <p className='label'>Name:</p>
-                    <p className='InputField'>{userData.name}</p>
+              <p className='label'>Name:</p>
+              <p className='InputField'>{userData?.name}</p>
 
-                    <p className='label'>Email Id: </p>
-                    <p className='InputField'>{userData.email}</p>
+              <p className='label'>Email Id:</p>
+              <p className='InputField'>{userData?.email}</p>
 
-                    <p className='label'>Contact Details:</p>
-                    <p className='InputField'> {userData.contactNumber}</p>
+              <p className='label'>Contact Details:</p>
+              <p className='InputField'> {userData?.contactNumber}</p>
 
-                    <p className='label'>Aadhar Details:</p>
-                    <p className='InputField'> {userData.aadharNumber}</p>
-                    
-                    {/* Add other user details here */}
-                  </>
-                ) : (
-                  <div>
-                    <h1>Dummy User Data</h1>
-                    <p>Name: John Doe</p>
-                    <p>Email: johndoe@example.com</p>
-                    <p>Contact: 123-456-7890</p>
-                    <p>Aadhar Number: 1234-5678-9012</p>
-                </div>
-                )}
+              <p className='label'>Aadhar Number:</p>
+              <p className='InputField'> {userData?.aadharNumber}</p>
             </div>
-            <div className='second-btn'>
-              <button className='profile-btn'>Edit</button>
-            </div>
+           
           </div>
         );
       case 'RoomDetails':
@@ -103,75 +106,62 @@ const ProfilePage = () => {
           <div className='renderbox'>
             <div className='second-heading'><h1>Your Room Details</h1></div>
             <div className='second-content'>
-              All Your Room's Details are shown here
+              <p className='label'>Room Type:</p>
+              <p className='InputField'>{tenantRoom.type}</p>
+
+              <p className='label'>Landlord Email Id:</p>
+              <p className='InputField'>{tenantRoom.email}</p>
+
+              <p className='label'>Address of the Room:</p>
+              <p className='InputField'> {tenantRoom.address}</p>
+
             </div>
             <div className='second-btn'>
-              <button className='profile-btn'>Delete Room</button>
+              <button className='profile-btn'>Release Room</button>
             </div>
           </div>
         );
-      
       default:
         return (
-          <div className='renderbox'>
+          <div className='renderbox' style={{ overflow: "auto" }}>
             <div className='second-heading'><h1>Your Personal Details</h1></div>
-            <div className='second-content'>
-            {userData ? (
-                  <>
-                    <p className='label'>Name:</p>
-                    <p className='InputField'>{userData.name}</p>
+            <div className='second-content' >
+              <p className='label'>Name:</p>
+              <p className='InputField'>{userData?.name}</p>
 
-                    <p className='label'>Email Id: </p>
-                    <p className='InputField'>{userData.email}</p>
+              <p className='label'>Email Id:</p>
+              <p className='InputField'>{userData?.email}</p>
 
-                    <p className='label'>Contact Details:</p>
-                    <p className='InputField'> {userData.contactNumber}</p>
+              <p className='label'>Contact Details:</p>
+              <p className='InputField'> {userData?.contactNumber}</p>
 
-                    <p className='label'>Aadhar Details:</p>
-                    <p className='InputField'> {userData.aadharNumber}</p>
-                    
-                    {/* Add other user details here */}
-                  </>
-                ) : (
-                  <div>
-                    <h1>Dummy User Data</h1>
-                    <p>Name: John Doe</p>
-                    <p>Email: johndoe@example.com</p>
-                    <p>Contact: 123-456-7890</p>
-                    <p>Aadhar Number: 1234-5678-9012</p>
-                </div>
-                )}
-            </div>
-            <div className='second-btn'>
-              <button className='profile-btn'>Edit</button>
+              <p className='label'>Aadhar Number:</p>
+              <p className='InputField'> {userData?.aadharNumber}</p>
             </div>
           </div>
         );
     }
   };
 
-  const deleteAccount= async()=>{
-    const userId = localStorage.getItem("userId");
-    console.log("delete");
-
+  const deleteAccount = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/tenant/profile/${userId}`, {
-        method: 'DELETE',
+      const response = await axios.delete(`http://localhost:5000/api/tenant/profile/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to delete user');
       }
+
       window.localStorage.clear();
-      
-      // Optionally, you can handle the success response here
       console.log('User deleted successfully');
       navigate("/");
     } catch (error) {
       console.error('Error deleting user:', error);
     }
-  }
-
+  };
 
   return (
     <>
@@ -181,17 +171,24 @@ const ProfilePage = () => {
           <ul>
             <li onClick={() => setSelectedOption('PersonalDetails')}>Personal Details</li>
             <li onClick={() => setSelectedOption('RoomDetails')}>Room Details</li>
-            {/* <li onClick={() => setSelectedOption('requests')}>Requests</li> */}
-            {/* <li onClick={() => setSelectedOption('Payments')}>Payments</li> */}
             <button onClick={deleteAccount} className='profile-btn'>Delete Account</button>
-            {/* <li>Delete Account</li> */}
           </ul>
         </div>
         <div className="second">
           {renderContent()}
+          <div className='second-btn'>
+            
+          </div>
         </div>
-        <div className="profile-section">
-          <img src={profileImage} alt="Profile" className="profile-photo" />
+        <div className="profile-section" style={{border:"2px solid red"}}>
+          {userData && userData.profilePhoto && (
+            
+            <img src={userData.profilePhoto} alt="Profile" className="profile-photo"/>
+          )}
+          <form onSubmit={handleFormSubmit}>
+              <input type="file" accept="image/*" onChange={handleFileChange} style={{backgroundColor:"#f20674"}}/>
+              <button type="submit" className='profile-btn'>Upload Profile Photo</button>
+            </form>
           <div className="ratings">
             <h3>Your Ratings</h3>
             <p>5 stars</p>

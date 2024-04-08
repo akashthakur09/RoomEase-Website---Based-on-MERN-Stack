@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const dotenv=require("dotenv").config();
 const cors = require('cors');
 const connectDB = require('./config/db'); 
+const path = require('path');
 
 
 const app = express();
@@ -16,11 +17,14 @@ app.use(cors());
 
 connectDB();
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use('/api/auth', require('./routes/auth')); 
 app.use('/api/tenant', require('./routes/tenant')); 
 app.use('/api/landlord', require('./routes/landlord')); 
 app.use('/api/request', require('./routes/request')); 
 app.use('/api/room', require('./routes/room')); 
+app.use('/api/upload', require('./routes/upload'));
 
 
 app.use((req, res) => {

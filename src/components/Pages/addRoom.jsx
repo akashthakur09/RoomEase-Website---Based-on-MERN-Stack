@@ -1,137 +1,447 @@
-import React,{ useEffect, useState }  from "react";
+
+// import React, { useEffect, useState } from "react";
+// import Navbar from "./llnavbar";
+// import "./../css/llp.css";
+// import { useNavigate } from "react-router-dom";
+// import axios from "axios";
+
+// export default function AddRoom() {
+//   const [userData, setUserData] = useState({});
+//   const [newRooms, setNewRooms] = useState({
+//     type: "",
+//     email: "",
+//     photos: "",
+//     address: "",
+//     city: "",
+//     landlord: "",
+//     status: "",
+//   });
+//   const userId = localStorage.getItem("userId");
+//   let navigate = useNavigate();
+
+//   useEffect(() => {
+//     const fetchUserData = async () => {
+//       try {
+//         const response = await axios.get(`http://localhost:5000/api/landlord/profile/${userId}`, {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         });
+//         setUserData(response.data);
+//       } catch (error) {
+//         console.error("Error fetching user data:", error);
+//       }
+//     };
+
+//     fetchUserData();
+//   }, [userId]);
+
+//   const addNewRoom = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const response = await axios.post(
+//         `http://localhost:5000/api/room/user/${userId}`,
+//         {
+//           type: newRooms.type,
+//           email: newRooms.email,
+//           photos: newRooms.photos,
+//           address: newRooms.address,
+//           city: newRooms.city,
+//           landlord: newRooms.landlord,
+//           status: newRooms.status,
+//         },
+//         {
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         }
+//       );
+
+//       alert("Room Added Successfully :)");
+//       navigate("/updateRoom");
+//     } catch (error) {
+//       console.error("Error adding room:", error);
+//       alert("An error occurred. Please try again later.");
+//     }
+//   };
+
+//   const onChange = (e) => {
+//     setNewRooms({ ...newRooms, [e.target.name]: e.target.value });
+//   };
+
+//   return (
+//     <div>
+//       <Navbar />
+//       <div className="addRoomPage">
+//         <div className="formBox">
+//           <form onSubmit={addNewRoom}>
+//             <h1 className="addRoomHeading">Enter Room Details</h1>
+//             <label>Room Type</label>
+//             <input
+//               type="text"
+//               name="type"
+//               onChange={onChange}
+//               value={newRooms.type}
+//             />
+//             <label>Email:</label>
+//             <input
+//               type="text"
+//               name="email"
+//               onChange={onChange}
+//               value={newRooms.email || userData.email} // Pre-fill with user's email if available
+//             />
+//             <label>Images of the Room:</label>
+//             <input
+//               type="text"
+//               name="photos"
+//               onChange={onChange}
+//               value={newRooms.photos}
+//             />
+//             <label>Address:</label>
+//             <input
+//               type="text"
+//               name="address"
+//               onChange={onChange}
+//               value={newRooms.address}
+//             />
+//             <label>City:</label>
+//             <input
+//               type="text"
+//               name="city"
+//               onChange={onChange}
+//               value={newRooms.city}
+//             />
+//             <label>Id of the Landlord:</label>
+//             <input
+//               type="text"
+//               name="landlord"
+//               value={userId}
+//               readOnly // Make this field read-only
+//             />
+//             <label>Status:</label>
+//             <input
+//               type="text"
+//               name="status"
+//               onChange={onChange}
+//               value={newRooms.status}
+//             />
+//             <button className="addRoom_btn">Add Room</button>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import Navbar from "./llnavbar";
+// import "./../css/llp.css";
+// import { useNavigate } from "react-router-dom";
+// import axios from "axios";
+
+// export default function AddRoom() {
+//   const [userData, setUserData] = useState({});
+//   const [newRooms, setNewRooms] = useState({
+//     type: "",
+//     email: "",
+//     photos: [],
+//     address: "",
+//     city: "",
+//     landlord: "",
+//     status: "",
+//   });
+//   const userId = localStorage.getItem("userId");
+//   let navigate = useNavigate();
+
+//   useEffect(() => {
+//     const fetchUserData = async () => {
+//       try {
+//         const response = await axios.get(`http://localhost:5000/api/landlord/profile/${userId}`, {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         });
+//         setUserData(response.data);
+//       } catch (error) {
+//         console.error("Error fetching user data:", error);
+//       }
+//     };
+
+//     fetchUserData();
+//   }, [userId]);
+
+//   const addNewRoom = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const formData = new FormData();
+//       formData.append("type", newRooms.type);
+//       formData.append("email", newRooms.email);
+//       formData.append("address", newRooms.address);
+//       formData.append("city", newRooms.city);
+//       formData.append("landlord", newRooms.landlord);
+//       formData.append("status", newRooms.status);
+//       newRooms.photos.forEach((photo) => {
+//         formData.append("photos", photo);
+//       });
+
+//       const response = await axios.post(
+//         `http://localhost:5000/api/room/user/${userId}`,
+//         formData,
+//         {
+//           headers: {
+//             "Content-Type": "multipart/form-data",
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         }
+//       );
+
+//       alert("Room Added Successfully :)");
+//       navigate("/updateRoom");
+//     } catch (error) {
+//       console.error("Error adding room:", error);
+//       alert("An error occurred. Please try again later.");
+//     }
+//   };
+
+//   const onChange = (e) => {
+//     if (e.target.name === "photos") {
+//       // For file input, use files array
+//       setNewRooms({ ...newRooms, [e.target.name]: e.target.files });
+//     } else {
+//       setNewRooms({ ...newRooms, [e.target.name]: e.target.value });
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <Navbar />
+//       <div className="addRoomPage">
+//         <div className="formBox">
+//           <form onSubmit={addNewRoom}>
+//             <h1 className="addRoomHeading">Enter Room Details</h1>
+//             <label>Room Type</label>
+//             <input
+//               type="text"
+//               name="type"
+//               onChange={onChange}
+//               value={newRooms.type}
+//             />
+//             <label>Email:</label>
+//             <input
+//               type="text"
+//               name="email"
+//               onChange={onChange}
+//               value={newRooms.email || userData.email}
+//             />
+//             <label>Images of the Room:</label>
+//             <input
+//               type="file"
+//               name="photos"
+//               onChange={onChange}
+//               multiple // Allow multiple file selection
+//             />
+//             <label>Address:</label>
+//             <input
+//               type="text"
+//               name="address"
+//               onChange={onChange}
+//               value={newRooms.address}
+//             />
+//             <label>City:</label>
+//             <input
+//               type="text"
+//               name="city"
+//               onChange={onChange}
+//               value={newRooms.city}
+//             />
+//             <label>Id of the Landlord:</label>
+//             <input
+//               type="text"
+//               name="landlord"
+//               value={userId}
+//               readOnly
+//             />
+//             <label>Status:</label>
+//             <input
+//               type="text"
+//               name="status"
+//               onChange={onChange}
+//               value={newRooms.status}
+//             />
+//             <button className="addRoom_btn">Add Room</button>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
 import Navbar from "./llnavbar";
 import "./../css/llp.css";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
+export default function AddRoom() {
+  const [userData, setUserData] = useState({});
+  const [newRooms, setNewRooms] = useState({
+    type: "",
+    email: "",
+    photos: [], // Initialize photos as an empty array
+    address: "",
+    city: "",
+    landlord: "",
+    status: "",
+  });
+  const userId = localStorage.getItem("userId");
+  let navigate = useNavigate();
 
-
-export default function AddRoom(){
-
-    const[newRooms,setNewRooms] = useState(
-        {
-            type:"",
-            email:"",
-            photos:"",
-            address:"",
-            landlord:"",
-            status:"",
-        }
-    );
-    const userId = localStorage.getItem("userId");
-    let navigate = useNavigate()
-
-
-
-    const addNewRoom = async(e)=>{
-        e.preventDefault();
-        try {
-            const response = await fetch(`http://localhost:5000/api/room/user/${userId}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                type: newRooms.type,
-                email: newRooms.email,
-                photos: newRooms.photos,
-                address: newRooms.address,
-                landlord: newRooms.landlord,
-                status: newRooms.status,
-              }),
-            });
-      
-            const json = await response.json();
-            // console.log(json);
-            // if (json.success) {
-              alert("Room Added Successfully :)");
-              navigate('/updateRoom'); 
-            // } else {
-            //   alert("Failed to add room. Please try again.");
-            // }
-          } catch (error) {
-            console.error("Error adding room:", error);
-            alert("An error occurred. Please try again later.");
-          }
-
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/landlord/profile/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setUserData(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     };
 
-    const onChange=(e)=>{
-        setNewRooms({...newRooms,[e.target.name]: e.target.value})
+    fetchUserData();
+  }, [userId]);
+
+  const addNewRoom = async (e) => {
+    e.preventDefault();
+    try {
+      // Check if the required fields are populated
+      if (!newRooms.type || !newRooms.email || !newRooms.address || !newRooms.city) {
+        // Display an error message or handle the case where required fields are missing
+        alert("Please fill out all required fields.");
+        return;
+      }
+  
+      // Proceed with adding the room if all required fields are provided
+      const formData = new FormData();
+      formData.append("type", newRooms.type);
+      formData.append("email", newRooms.email);
+      formData.append("address", newRooms.address);
+      formData.append("city", newRooms.city);
+      formData.append("landlord", newRooms.landlord);
+      formData.append("status", newRooms.status);
+      newRooms.photos.forEach((photo) => {
+        formData.append("photos", photo);
+      });
+  
+      const response = await axios.post(
+        `http://localhost:5000/api/room/user/${userId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      alert("Room Added Successfully :)");
+      navigate("/updateRoom");
+    } catch (error) {
+      console.error("Error adding room:", error);
+      alert("An error occurred. Please try again later.");
     }
+  };
 
+  const onChange = (e) => {
+    if (e.target.name === "photos") {
+      // For file input, use files array
+      setNewRooms({ ...newRooms, [e.target.name]: Array.from(e.target.files) }); // Convert FileList to array
+    } else {
+      setNewRooms({ ...newRooms, [e.target.name]: e.target.value });
+    }
+  };
 
-    return(
-        
-        <div>
-            <Navbar />
-            <div className="addRoomPage">
-                <div className="formBox">
-                    <form onSubmit={addNewRoom}>
-                        <h1 className="addRoomHeading">Enter Room Details</h1>
-                        <label>Room Type</label>
-                        {/* <br /> */}
-                        <input
-                            type="text"
-                            name="type"
-                            onChange={onChange}
-                            value={newRooms.type}
-                        />
-                        {/* <br /> */}
-                        <label>Email:</label>
-                        {/* <br /> */}
-                        <input
-                            type="text"
-                            name="email"
-                            onChange={onChange}
-                            value={newRooms.email}
-                        />
-                        {/* <br /> */}
-                        <label>Images of the Room:</label>
-                        {/* <br /> */}
-                        <input
-                            type="text"
-                            name="photos"
-                            onChange={onChange}
-                            value={newRooms.photos}
-                        />
-                        {/* <br /> */}
-                        <label>Address:</label>
-                        {/* <br /> */}
-                        <input
-                            type="text"
-                            name="address"
-                            onChange={onChange}
-                            value={newRooms.address}
-                        />
-                        {/* <br /> */}
-                        <label>Id of the Landlord:</label>
-                        {/* <br /> */}
-                        <input
-                            type="text"
-                            name="landlord"
-                            onChange={onChange}
-                            value={newRooms.landlord}
-                        />
-                        {/* <br /> */}
-                        <label>Status:</label>
-                        {/* <br /> */}
-                        <input
-                            type="text"
-                            name="status"
-                            onChange={onChange}
-                            value={newRooms.status}
-                        />
-                        {/* <br /> */}
-                        <button className="addRoom_btn">Add Room</button>
-
-                    </form>
-                </div>
-            </div>
-            
+  return (
+    <div>
+      <Navbar />
+      <div className="addRoomPage">
+        <div className="formBox">
+          <form onSubmit={addNewRoom}>
+            <h1 className="addRoomHeading">Enter Room Details</h1>
+            <label>Room Type</label>
+            <input
+              type="text"
+              name="type"
+              onChange={onChange}
+              value={newRooms.type}
+            />
+            <label>Email:</label>
+            <input
+              type="text"
+              name="email"
+              onChange={onChange}
+              value={newRooms.email || userData.email}
+            />
+            <label>Images of the Room:</label>
+            <input
+              type="file"
+              name="photos"
+              onChange={onChange}
+              multiple // Allow multiple file selection
+            />
+            <label>Address:</label>
+            <input
+              type="text"
+              name="address"
+              onChange={onChange}
+              value={newRooms.address}
+            />
+            <label>City:</label>
+            <input
+              type="text"
+              name="city"
+              onChange={onChange}
+              value={newRooms.city}
+            />
+            <label>Id of the Landlord:</label>
+            <input
+              type="text"
+              name="landlord"
+              onChange={onChange}
+              value={userId}
+              readOnly
+            />
+            <label>Status:</label>
+            <input
+              type="text"
+              name="status"
+              onChange={onChange}
+              value={newRooms.status}
+            />
+            <button className="addRoom_btn">Add Room</button>
+          </form>
         </div>
-
-    );
-        
-
-        
+      </div>
+    </div>
+  );
 }

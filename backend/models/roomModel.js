@@ -7,6 +7,7 @@ const roomSchema = new mongoose.Schema({
   
   photos: [{ type: String }], 
   address: { type: String, required: true },
+  city: { type: String, required: true },
   landlord: { type: mongoose.Schema.Types.ObjectId, ref: 'Landlord', required: true },
   status: { type: String, enum: ['available', 'occupied'], default: 'available' }
   

@@ -5,12 +5,17 @@ const Landlord = require('../models/landlordModel');
 const validateToken = require('../middleware/validateTokenHandler');
 const cors = require('cors');
 const Tenant = require('../models/tenantModel');
+const multer = require('multer'); 
+const upload = multer({ dest: 'uploads/' });
 
-router.post('/user/:id', async (req, res) => {
+
+
+
+router.post('/user/:id', validateToken, upload.array('photos', 5), async (req, res) => {
   try {
-    const userId = req.params.id; // Use route parameter
+    const userId = req.params.id;
     const landlord = await Landlord.findById(userId);
-    
+
     if (!landlord) {
       return res.status(403).json({ message: 'You are not authorized to create a room' });
     }
@@ -18,63 +23,45 @@ router.post('/user/:id', async (req, res) => {
     const newRoomData = {
       type: req.body.type,
       email: req.body.email,
-      photos: req.body.photos,
+      photos: req.files.map(file => file.path), // Save file paths in photos array
       address: req.body.address,
+      city: req.body.city,
       landlord: userId,
       status: req.body.status
     };
-    console.log("New Room Data:", newRoomData);
+
     const newRoom = new Room(newRoomData);
     const savedRoom = await newRoom.save();
     res.status(201).json(savedRoom);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
-
   }
 });
 
-
-// Update room by ID (only alloweo the landlord who owns the room)
-// router.put('/:id',validateToken, async (req, res) => {
-router.put('/user/:id', async (req, res) => {
+router.put('/user/:id', validateToken, upload.array('photos', 5), async (req, res) => {
   try {
     const roomId = req.params.id;
     const room = await Room.findById(roomId);
-    // console.log("run1");
+
     if (!room) {
-      const userId = req.params.id;
-      const newRoomData = {
-        type: req.body.type,
-        email: req.body.email,
-        photos: req.body.photos,
-        address: req.body.address,
-        landlord: userId,
-        status: req.body.status
-      };
-      console.log("New Room Data:", newRoomData);
-      const newRoom = new Room(newRoomData);
-      const savedRoom = await newRoom.save();
-      return res.status(201).json(savedRoom);
-      // return res.status(404).json({ message: 'Room not found' });
-      
+      return res.status(404).json({ message: 'Room not found' });
     }
-    // console.log("run2");
+
     if (room.landlord.toString() !== req.body.landlord) {
       return res.status(403).json({ message: 'You are not authorized to update this room' });
     }
-    // console.log("run3");
+
     const updatedRoomData = {
       type: req.body.type,
-
-      email:req.body.email,
-
-      photos: req.body.photos,
+      email: req.body.email,
+      photos: req.files.map(file => file.path), // Save file paths in photos array
       address: req.body.address,
+      city: req.body.city,
       landlord: req.body.landlord,
       status: req.body.status
     };
-    // console.log(updatedRoomData);
+
     const updatedRoom = await Room.findByIdAndUpdate(roomId, updatedRoomData, { new: true });
 
     return res.status(200).json(updatedRoom);
@@ -83,11 +70,9 @@ router.put('/user/:id', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
 // Delete room by ID (only allowed for the landlord who owns the room)
 // router.delete('/:id',validateToken, async (req, res) => {
-  router.delete('/user/:id', async (req, res) => {
+  router.delete('/user/:id',validateToken, async (req, res) => {
   try {
     const roomId = req.params.id;
     if (!roomId) {
@@ -109,13 +94,16 @@ router.put('/user/:id', async (req, res) => {
   }
 });
 
-
-// Get all rooms (only allowe for authenticated landlords)
-router.get('/all', async (req, res) => {
+router.get('/all',validateToken, async (req, res) => {
   try {
-   
-    
-    const rooms = await Room.find();
+    const { city, type } = req.query;
+
+    let query = {};
+
+    if (city) query = {...query, city };
+    if (type) query = {...query, type };
+
+    const rooms = await Room.find(query);
 
     res.status(200).json(rooms);
   } catch (error) {
@@ -127,19 +115,20 @@ router.get('/all', async (req, res) => {
 
 
 
-router.get('/user/:id', async (req, res) => {
+router.get('/user/:id',validateToken, async (req, res) => {
   try {
     const userId = req.params.id;
 
     // Check if the user is a landlord
-    const tenant = await Tenant.findById(userId);
-    console.log(tenant);
-    if (!tenant) {
-      return res.status(403).json({ message: 'You are not authorized to view rooms' });
-    }
+    // const tenant = await Tenant.findById(userId);
+    // console.log(tenant);
+    // if (!tenant) {
+    //   return res.status(403).json({ message: 'You are not authorized to view rooms' });
+    // }
 
     // Fetch rooms associated with the landlord
-    const rooms = await Room.find({ tenant: userId });
+    // const rooms = await Room.find({ tenant: userId });
+    const rooms = await Room.find({userId });
 
 
     console.log(rooms)
@@ -153,7 +142,7 @@ router.get('/user/:id', async (req, res) => {
 });
 
 // get a room details with help of room id&&&&&&&&&&&&&&&&&&&&&&&&
-router.get('/:id', async (req, res) => {
+router.get('/:id',validateToken, async (req, res) => {
   try {
     const roomId = req.params.id;
     const room = await Room.findById(roomId);
